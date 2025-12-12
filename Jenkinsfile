@@ -1,47 +1,13 @@
 pipeline {
-    agent {
-        docker {
-            image 'docker:latest'
-            args '-v /var/run/docker.sock:/var/run/docker.sock'
-        }
-    }
-
-    environment {
-        IMAGE = "localhost:5000/simple-webapp"
-    }
+    agent any
 
     stages {
-        stage('Checkout Code') {
+        stage('Deploy to EC2') {
             steps {
-                git 'https://github.com/ALFAHADH/simple-web-page.git'
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                sh '''
-                docker build -t $IMAGE:latest .
-                '''
-            }
-        }
-
-        stage('Push to Local Registry') {
-            steps {
-                sh '''
-                docker push $IMAGE:latest
-                '''
-            }
-        }
-
-        stage('Deploy to Kubernetes') {
-            steps {
-                withCredentials([file(credentialsId: 'kubeconfig', variable: 'KCFG')]) {
-                    sh '''
-                    export KUBECONFIG=$KCFG
-                    
-                    kubectl apply -f deployment.yaml
-                    kubectl rollout restart deployment/webapp
-                    '''
+                sshagent(['da0a1480-55b8-45ea-8166-19aae75b0066']) {
+                    sh """
+                        scp -o StrictHostKeyChecking=no index.html ec2-user@65.2.78.245:/var/www/html/
+                    """
                 }
             }
         }
