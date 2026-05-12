@@ -60,9 +60,9 @@ pipeline {
 
                 echo "📤 Pushing to DockerHub..."
                 withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-creds',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
+                    credentialsId: 'cred-id',
+                    usernameVariable: 'alfahadh',
+                    passwordVariable: ''
                 )]) {
                     sh """
                         echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
